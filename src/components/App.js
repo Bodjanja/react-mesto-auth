@@ -4,7 +4,7 @@ import Header from './Header';
 import Main from './Main';
 import Footer from './Footer';
 import PopupWithForm from './PopupWithForm';
-import PopupWithImage from './PopupWithImage';
+import ImagePopup from './ImagePopup';
 
 function App() {
     //Хуки-переменные состояния, отвечающие за видимость попапов
@@ -98,7 +98,7 @@ function App() {
 
 </PopupWithForm>
 
-<PopupWithImage card={selectedCard} onClose={closeAllPopups} />
+<ImagePopup card={selectedCard} onClose={closeAllPopups} />
 
 
 
