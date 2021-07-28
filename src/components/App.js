@@ -46,7 +46,7 @@ function App() {
     return () => {
         document.removeEventListener('keydown', escCloseHandler)
     }
-    })
+    }, [])
 
     React.useEffect(()=>{//Хук, отвечающий за закрытие попапов при клике на оверлей
         const outerClickCloseHandler = (evt) =>{
@@ -58,7 +58,7 @@ function App() {
         return () => {
             document.removeEventListener('click', outerClickCloseHandler)
         }
-    })
+    }, [])
 
 
   return (
@@ -69,7 +69,7 @@ function App() {
         <Main onEditProfile={handleEditProfileClick} onAddPlace={handleAddPlaceClick} onEditAvatar={handleEditAvatarClick} onCardClick={handleCardClick}/>
         <Footer />
     </div>
-<PopupWithForm name="type_profile" isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} title="Редактировать профиль" textOnButton="Сохранить">
+        <PopupWithForm name="type_profile" isOpen={isEditProfilePopupOpen} onClose={closeAllPopups} title="Редактировать профиль" textOnButton="Сохранить">
                      <input id="username" name="name" type="text" className="form__input-info form__input-info_type_name" required
                         placeholder="Введите имя" minLength="2" maxLength="40"></input>
                         <span className="form__input-info-error" id="username-error"></span>
@@ -77,42 +77,29 @@ function App() {
                         className="form__input-info form__input-info_type_description" required
                         placeholder="Введите описание" minLength="2" maxLength="200"></input>
                         <span className="form__input-info-error" id="description-error"></span>
-</PopupWithForm>
+        </PopupWithForm>
 
-<PopupWithForm name="type_addition" isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} title="Новое место" textOnButton="Создать">
+        <PopupWithForm name="type_addition" isOpen={isAddPlacePopupOpen} onClose={closeAllPopups} title="Новое место" textOnButton="Создать">
                     <input id="newplace" name="additionName" className="form__input-info form__input-info_type_place" type="text"
                         placeholder="Название" required minLength="2" maxLength="30"></input>
                     <span className="form__input-info-error" id="newplace-error"></span>
                     <input id="newplaceimg" name="additionPhoto" className="form__input-info form__input-info_type_image" type="url"
                         placeholder="Ссылка на картинку" required></input>
                         <span className="form__input-info-error" id="newplaceimg-error"></span>
-</PopupWithForm>
+        </PopupWithForm>
 
-<PopupWithForm name="avatar-update" isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} title="Обновить аватар" textOnButton="Сохранить">
+        <PopupWithForm name="avatar-update" isOpen={isEditAvatarPopupOpen} onClose={closeAllPopups} title="Обновить аватар" textOnButton="Сохранить">
                     <input name="updateAvatar" id="avatar" className="form__input-info form__input-info_type_avatar" type="url"
                     placeholder="Ссылка на аватар" required></input>
                     <span className="form__input-info-error" id="avatar-error"></span>
-</PopupWithForm>
+        </PopupWithForm>
 
-<PopupWithForm name="confirmation" title="Вы уверены?">
+        <PopupWithForm name="confirmation" title="Вы уверены?" textOnButton="Да">
 
-</PopupWithForm>
+        </PopupWithForm>
 
-<ImagePopup card={selectedCard} onClose={closeAllPopups} />
+        <ImagePopup card={selectedCard} onClose={closeAllPopups} />
 
-
-
-    <div className="popup popup_confirmation">
-        <div className="popup__container">
-            <form name="confirmDeleteCard" className="popup__form popup__form_confirmation" noValidate>
-            <h2 className="popup__title">Вы уверены?</h2>
-            <button className="popup__submit-button popup__submit-button_type_confirmation" value="confirm"
-            aria-label="Подтвердить удаление карточки">Да</button>
-            <button type="button" aria-label="Закрыть редактирование"
-                className="popup__close popup__close_type_confirmation"></button>
-            </form>
-        </div>
-    </div>
     </div>
     </div>
   );

@@ -3,26 +3,23 @@ import {api} from '../utils/Api.js'
 import Card from './Card.js'
 
 function Main(props) {
-    const [userName, setUserName] = React.useState()
-    const [userDescription, setUserDescription] = React.useState()
+    const [userName, setUserName] = React.useState('')
+    const [userDescription, setUserDescription] = React.useState('')
     const [userAvatar, setUserAvatar] = React.useState()
     const [cards, setCards] = React.useState([])
 
-    React.useEffect(()=>{//Принимаем данные о пользователе из запроса API и вызываем сеттеры, записывая значения данных в соответствующие поля
-        api.getUserData()
-        .then((res)=>{
-            setUserName(res.name)
-            setUserDescription(res.about)
-            setUserAvatar(res.avatar)
-        })
-    })
-
     React.useEffect(()=>{
-        api.getInitialCards()
-        .then((res)=>{
-            setCards(res)
-        })
-    })
+        Promise.all([api.getInitialCards(), api.getUserData()]).then(([cards, info]) => {
+            //Добавление информации о профиле с сервера
+            setUserName(info.name)
+            setUserDescription(info.about)
+            setUserAvatar(info.avatar)
+            
+            setCards(cards)//Добавление карточек из массива с сервера
+              }).catch((err) => {
+                console.log(err)
+              });
+    }, [])
 
   return (
 <main className="content">
@@ -46,7 +43,6 @@ function Main(props) {
             <section className="elements">
                 <ul className="elements__list">
                     {cards.map((card, i) => (
-                        // console.log(card)
                         <Card key={card._id} card={card} onCardClick={props.onCardClick} />
                     ))}
                 </ul>
