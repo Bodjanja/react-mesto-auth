@@ -31,7 +31,7 @@ function EditProfilePopup({ isOpen, onClose, onUpdateUser }){
     React.useEffect(()=>{//Меняем значение состояния имени и описания пользователя на ту информацию, которая приходит из API
         setName(currentUser.name)
         setDescription(currentUser.about)
-    }, [currentUser])
+    }, [isOpen])
     
     return(
     <PopupWithForm name="type_profile" isOpen={isOpen} onClose={onClose} onSubmit={handleSubmit} title="Редактировать профиль" textOnButton="Сохранить">

@@ -58,21 +58,34 @@ function App() {
     function handleUpdateUser(data){//Отправка отредактированных данных пользователя на сервер и их рендер на странице
         api.editProfileData(data.name, data.about)
         .then(userInfo=>{
-            setCurrentUser(userInfo)})
+            setCurrentUser(userInfo)
+            closeAllPopups()
+        })
+        .catch((err) => {
+            console.log(err)
+          })
     }
 
     function handleUpdateAvatar(data){//Отправка отредактированного аватара пользователя на сервер и его рендер на странице
         api.updateProfileAvatar(data.avatar)
         .then(userAvatar=>{
             setCurrentUser(userAvatar)
+            closeAllPopups()
         })
+        .catch((err) => {
+            console.log(err)
+          })
     }
 
     function handleAddPlaceSubmit(cardData){//Отправка новый карточек на сервер и добавление их в общий массив для рендера
         api.postNewCard(cardData.name, cardData.link)
         .then((newCard)=>{
             setCards([newCard, ...cards])
+            closeAllPopups()
         })
+        .catch((err) => {
+            console.log(err)
+          })
     }
 
     function closeAllPopups(){
@@ -89,7 +102,10 @@ function App() {
         // Отправляем запрос в API и получаем обновлённые данные карточки
         api.changeLikeCardStatus(card._id, !isLiked).then((newCard) => {
             setCards((state) => state.map((c) => c._id === card._id ? newCard : c));
-        });
+        })
+        .catch((err) => {
+            console.log(err)
+          })
     } 
 
     function handleCardDelete(card) {
@@ -100,6 +116,9 @@ function App() {
             }) 
             setCards(restCards)
         })
+        .catch((err) => {
+            console.log(err)
+          })
     }
     
     React.useEffect(()=>{//Хук, отвечающий за закрытие попапов при нажатии на кнопку Escape
@@ -116,7 +135,7 @@ function App() {
 
     React.useEffect(()=>{//Хук, отвечающий за закрытие попапов при клике на оверлей
         const outerClickCloseHandler = (evt) =>{
-            if(evt.target.className.includes('popup')){
+            if(evt.target.classList.contains('popup')){
                 closeAllPopups()
             }
         }

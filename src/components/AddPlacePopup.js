@@ -13,6 +13,9 @@ function AddPlacePopup({ isOpen, onClose, onAddPlace }) {
             name: placeNameRef.current.value,
             link: placeLinkRef.current.value,
         })
+
+        placeNameRef.current.value = ''//Чистим инпуты формы добавления места
+        placeLinkRef.current.value = ''//Чистим инпуты формы добавления места
     }
 
     return(
