@@ -99,8 +99,10 @@ export default class Api {
   
   }
   
-  export const api = new Api({
+  const api = new Api({
     baseUrl: 'https://mesto.nomoreparties.co/v1/cohort-25',
     token: '1244c08d-1491-4631-b0bc-6d7f22b0d3e5'
     }
   );
+
+  export default api
