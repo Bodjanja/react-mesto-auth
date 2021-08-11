@@ -1,4 +1,4 @@
-export default class Api {
+class Api {
     constructor(data) {
       this._baseUrl = data.baseUrl
       this._token = data.token
