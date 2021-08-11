@@ -6,7 +6,7 @@ function PopupWithForm (props) {
         <div className={`popup popup_${props.name} ${props.isOpen ? "popup_opened" : ""}`}>
         <div className="popup__container">
             <h2 className="popup__title">{props.title}</h2>
-            <form name={props.name} className={`form form_type_${props.name}`} noValidate>
+            <form name={props.name} className={`form form_type_${props.name}`} onSubmit={props.onSubmit} noValidate>
                 <fieldset className="form__item">
                     {props.children}
                     {/* Этот пропс передаёт уникальную разметку для разных попапов */}

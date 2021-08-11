@@ -32,7 +32,7 @@ export class Api {
       .then(this._checkResponse)
   }
 
-  editProfileData(cardData) {//Отправить отредактированные данные профиля на сервер
+  editProfileData(userName, userDescription) {//Отправить отредактированные данные профиля на сервер
     return fetch(`${this._baseUrl}/users/me`, {
         method: 'PATCH',
         headers: {
@@ -40,14 +40,14 @@ export class Api {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: cardData.name,
-          about: cardData.description
+          name: userName,
+          about: userDescription
         })
       })
       .then(this._checkResponse)
   }
 
-  updateProfileAvatar(data) {//Отправить отредактированный URL аватара на сервер
+  updateProfileAvatar(updateAvatar) {//Отправить отредактированный URL аватара на сервер
     return fetch(`${this._baseUrl}/users/me/avatar`, {
         method: 'PATCH',
         headers: {
@@ -55,13 +55,13 @@ export class Api {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          avatar: data.updateAvatar
+          avatar: updateAvatar
         })
       })
       .then(this._checkResponse)
   }
 
-  postNewCard(cardData) {//Отправить на сервер новую карточку и добавить её в разметку
+  postNewCard(cardName, cardLink) {//Отправить на сервер новую карточку и добавить её в разметку
     return fetch(`${this._baseUrl}/cards`, {
         method: 'POST',
         headers: {
@@ -69,8 +69,8 @@ export class Api {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          name: cardData.additionName,
-          link: cardData.additionPhoto
+          name: cardName,
+          link: cardLink
         })
       })
       .then(this._checkResponse)
@@ -87,25 +87,13 @@ export class Api {
     .then(this._checkResponse)
   }
 
-  likeCard(_id){
+  changeLikeCardStatus(_id, isLiked) {
     return fetch(`${this._baseUrl}/cards/likes/${_id}`, {
-      method: 'PUT',
-      headers: {
-        authorization: `${this._token}`,
-        'Content-Type': 'application/json'
-      }
-    })
-    .then(this._checkResponse)
-  }
-
-  dislikeCard(_id){
-    return fetch(`${this._baseUrl}/cards/likes/${_id}`, {
-      method: 'DELETE',
-      headers: {
-        authorization: `${this._token}`,
-        'Content-Type': 'application/json'
-      }
-    })
+            method: `${isLiked ? 'PUT' : 'DELETE'}`,
+            headers: {
+                authorization: this._token
+            }
+        })
     .then(this._checkResponse)
   }
 
