@@ -1,4 +1,7 @@
 import React from "react";
+import { Route, Switch, Redirect } from 'react-router-dom';
+import Register from "./Register";
+import Login from "./Login"
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
@@ -12,12 +15,12 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
 function App() {
   //Хуки-переменные состояния, отвечающие за видимость попапов
-  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] =
-    React.useState(false);
+  const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
-  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] =
-    React.useState(false);
+  const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
   const [selectedCard, setSelectedCard] = React.useState({});
+  const [signinPageActive, setSigninPageActive] = React.useState(true);
+  const [loggedIn, setLoggedIn] = React.useState(false)
 
   const [currentUser, setCurrentUser] = React.useState({}); //Хук состояния для рендера информации о профиле
   const [cards, setCards] = React.useState([]); //Хук состояния для добавления карт из начального массива
@@ -137,6 +140,16 @@ function App() {
       });
   }
 
+  function handlePageRedirect(){//Изменение состояния переменной при перемещении между страницами приложения
+    setSigninPageActive(!signinPageActive)
+  }
+
+  function showRegister(registerData){
+    console.log(registerData)
+  }
+
+// -------------------------------------------------------------------------------
+  
   React.useEffect(() => {
     //Хук, отвечающий за закрытие попапов при нажатии на кнопку Escape
     const escCloseHandler = (evt) => {
@@ -165,10 +178,20 @@ function App() {
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
-      <div style={{ backgroundColor: "black" }}>
+      <div style={{ backgroundColor: "black", minHeight: '100vh' }}>
         <div className="page">
           <div id="#root" className="root">
-            <Header />
+            <Header loginPage={signinPageActive} redirectHandler={handlePageRedirect} />
+            <Switch>
+            <Route path='/sign-up'>
+              <Register registerData={showRegister} redirectHandler={handlePageRedirect} />
+            </Route>
+
+            <Route path='/sign-in'>
+              <Login />
+            </Route>
+            <Route path='/'>
+              {loggedIn ? <Redirect to='/' /> : <Redirect to='/sign-in' /> }
             <Main
               cards={cards}
               onEditProfile={handleEditProfileClick}
@@ -179,6 +202,8 @@ function App() {
               onCardDelete={handleCardDelete}
             />
             <Footer />
+            </Route>
+            </Switch>
           </div>
           <EditProfilePopup
             isOpen={isEditProfilePopupOpen}
