@@ -1,15 +1,21 @@
 import React from "react";
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Switch, useHistory } from 'react-router-dom';
+
 import Register from "./Register";
 import Login from "./Login"
 import Header from "./Header";
 import Main from "./Main";
 import Footer from "./Footer";
+import ProtectedRoute from "./ProtectedRoute";
+
 import PopupWithForm from "./PopupWithForm";
 import EditProfilePopup from "./EditProfilePopup";
 import EditAvatarPopup from "./EditAvatarPopup";
 import AddPlacePopup from "./AddPlacePopup";
 import ImagePopup from "./ImagePopup";
+import InfoTooltip from "./InfoTooltip";
+
+import * as auth from "../utils/auth";
 import api from "../utils/api.js";
 import { CurrentUserContext } from "../contexts/CurrentUserContext";
 
@@ -18,12 +24,19 @@ function App() {
   const [isEditProfilePopupOpen, setIsEditProfilePopupOpen] = React.useState(false);
   const [isAddPlacePopupOpen, setIsAddPlacePopupOpen] = React.useState(false);
   const [isEditAvatarPopupOpen, setIsEditAvatarPopupOpen] = React.useState(false);
+  const [isRegistrationPopupOpen, setIsRegistrationPopupOpen] = React.useState(false)
   const [selectedCard, setSelectedCard] = React.useState({});
   const [signinPageActive, setSigninPageActive] = React.useState(true);
+  const [isRegistred, setIsRegistred] = React.useState()
   const [loggedIn, setLoggedIn] = React.useState(false)
+  const [userData, setUserData] = React.useState('')
 
   const [currentUser, setCurrentUser] = React.useState({}); //Хук состояния для рендера информации о профиле
   const [cards, setCards] = React.useState([]); //Хук состояния для добавления карт из начального массива
+
+  const history = useHistory()
+
+  // ---------------------------------------------------
 
   React.useEffect(() => {
     api
@@ -47,6 +60,11 @@ function App() {
       });
   }, []);
 
+  React.useEffect(() => {
+    tokenCheck()
+  }, [])
+
+
   function handleEditProfileClick() {
     setIsEditProfilePopupOpen(true);
   }
@@ -63,10 +81,13 @@ function App() {
     setSelectedCard(card);
   }
 
+  function handleRegistrationClick(){
+    setIsRegistrationPopupOpen(true)
+  }
+
   function handleUpdateUser(data) {
     //Отправка отредактированных данных пользователя на сервер и их рендер на странице
-    api
-      .editProfileData(data.name, data.about)
+    api.editProfileData(data.name, data.about)
       .then((userInfo) => {
         setCurrentUser(userInfo);
         closeAllPopups();
@@ -78,8 +99,7 @@ function App() {
 
   function handleUpdateAvatar(data) {
     //Отправка отредактированного аватара пользователя на сервер и его рендер на странице
-    api
-      .updateProfileAvatar(data.avatar)
+    api.updateProfileAvatar(data.avatar)
       .then((userAvatar) => {
         setCurrentUser(userAvatar);
         closeAllPopups();
@@ -91,8 +111,7 @@ function App() {
 
   function handleAddPlaceSubmit(cardData) {
     //Отправка новый карточек на сервер и добавление их в общий массив для рендера
-    api
-      .postNewCard(cardData.name, cardData.link)
+    api.postNewCard(cardData.name, cardData.link)
       .then((newCard) => {
         setCards([newCard, ...cards]);
         closeAllPopups();
@@ -101,11 +120,12 @@ function App() {
         console.log(err);
       });
   }
-
+  
   function closeAllPopups() {
     setIsEditProfilePopupOpen(false);
     setIsAddPlacePopupOpen(false);
     setIsEditAvatarPopupOpen(false);
+    setIsRegistrationPopupOpen(false)
     setSelectedCard({});
   }
 
@@ -114,8 +134,7 @@ function App() {
     const isLiked = card.likes.some((i) => i._id === currentUser._id);
 
     // Отправляем запрос в API и получаем обновлённые данные карточки
-    api
-      .changeLikeCardStatus(card._id, !isLiked)
+    api.changeLikeCardStatus(card._id, !isLiked)
       .then((newCard) => {
         setCards((state) =>
           state.map((c) => (c._id === card._id ? newCard : c))
@@ -127,8 +146,7 @@ function App() {
   }
 
   function handleCardDelete(card) {
-    api
-      .removeCard(card._id)
+    api.removeCard(card._id)
       .then(() => {
         const restCards = cards.filter((item) => {
           return item._id !== card._id;
@@ -143,11 +161,60 @@ function App() {
   function handlePageRedirect(){//Изменение состояния переменной при перемещении между страницами приложения
     setSigninPageActive(!signinPageActive)
   }
-
-  function showRegister(registerData){
-    console.log(registerData)
+  function handleLogin(){
+    setLoggedIn(true)
   }
 
+  function handleUserData(info){//Сохранение почты для вставки в header при логине
+    const userData = {
+      email: info.data.email
+    }
+    setUserData(userData)
+  }
+
+  function handleSignOut(){
+    localStorage.removeItem('token')
+    history.push('/sign-in')
+    setLoggedIn(false)
+  }
+
+  function tokenCheck(){
+    if(localStorage.getItem('token')){
+      let token = localStorage.getItem('token')
+      auth.checkToken(token)
+      .then((response) => {
+        if(response.ok){
+        handleLogin()
+        history.push('/')
+        }
+        return response.json();
+      })
+      .then((res) => {
+        handleUserData(res)
+        return res;
+      })
+      .catch((err) => console.log(err));
+      }
+  }
+
+  const onRegister = (password, email) =>{//Запрос к бэкэнду для регистрации нового пользователя
+        auth.register(password, email)
+        .then((response) => {
+            if(response.ok){
+            history.goBack()
+            handlePageRedirect()
+            setIsRegistred(true)//Стейт для попапа успешной/неуспешной регистрации
+            }else{setIsRegistred(false)}
+          return response.json();
+      })
+        .then((res) => {
+            handleRegistrationClick()
+            return res;
+        })
+        .catch((err) => {
+          handleRegistrationClick()
+        console.log(err)});
+      }
 // -------------------------------------------------------------------------------
   
   React.useEffect(() => {
@@ -181,28 +248,27 @@ function App() {
       <div style={{ backgroundColor: "black", minHeight: '100vh' }}>
         <div className="page">
           <div id="#root" className="root">
-            <Header loginPage={signinPageActive} redirectHandler={handlePageRedirect} />
+            <Header loginPage={signinPageActive} redirectHandler={handlePageRedirect} loggedIn={loggedIn} userData={userData} signOut={handleSignOut} />
             <Switch>
             <Route path='/sign-up'>
-              <Register registerData={showRegister} redirectHandler={handlePageRedirect} />
+              <Register onRegister={onRegister} redirectHandler={handlePageRedirect}/>
             </Route>
 
             <Route path='/sign-in'>
-              <Login />
+              <Login loginHandler={handleLogin} tokenCheck={tokenCheck} />
             </Route>
-            <Route path='/'>
-              {loggedIn ? <Redirect to='/' /> : <Redirect to='/sign-in' /> }
-            <Main
+
+            <ProtectedRoute path='/' loggedIn={loggedIn} component={Main}
               cards={cards}
               onEditProfile={handleEditProfileClick}
               onAddPlace={handleAddPlaceClick}
               onEditAvatar={handleEditAvatarClick}
               onCardClick={handleCardClick}
               onCardLike={handleCardLike}
-              onCardDelete={handleCardDelete}
-            />
+              onCardDelete={handleCardDelete}>
+              </ProtectedRoute>
+            
             <Footer />
-            </Route>
             </Switch>
           </div>
           <EditProfilePopup
@@ -222,6 +288,8 @@ function App() {
             onClose={closeAllPopups}
             onUpdateAvatar={handleUpdateAvatar}
           />
+
+          <InfoTooltip isRegistred={isRegistred} isOpen={isRegistrationPopupOpen} onClose={closeAllPopups}/>
 
           <PopupWithForm
             name="confirmation"

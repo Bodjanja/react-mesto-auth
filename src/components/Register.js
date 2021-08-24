@@ -1,8 +1,7 @@
 import React from "react";
-import { Link } from "react-router-dom"
-import * as auth from "../utils/auth"
+import { Link } from "react-router-dom";
 
-export default function Register(props){
+export default function Register({redirectHandler, onRegister}){
     const [password, setPassword] = React.useState('')
     const [email, setEmail] = React.useState('')
 
@@ -16,11 +15,9 @@ export default function Register(props){
 
     function handleSubmit(e){
         e.preventDefault();
-        console.log(password)
-        console.log(email)
-        auth.register(password, email);
+        onRegister(password, email)
     }
-
+    
         return(
             <div style={{display: "flex", flexDirection: "column", alignItems: "center"}}>
             <h2 className='popup__title popup__title_alternative'>Регистрация</h2>
@@ -31,7 +28,7 @@ export default function Register(props){
                     <button className='popup__submit-button popup__submit-button_alternative'>Зарегистрироваться</button>
                 </fieldset>
             </form>
-            <Link to='/sign-in' onClick={props.redirectHandler} className='link button-effects'>Уже зарегистрированы? Войти</Link>
+            <Link to='/sign-in' onClick={redirectHandler} className='link button-effects'>Уже зарегистрированы? Войти</Link>
             </div>
         )
 }
