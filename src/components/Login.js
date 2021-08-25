@@ -1,5 +1,4 @@
-import React from "react";
-import * as auth from '../utils/auth'
+import React from "react"
 
 export default function Login(props){
 
@@ -16,21 +15,7 @@ export default function Login(props){
 
     function handleSubmit(e){
         e.preventDefault();
-        auth.login(password, email)
-        .then((response) => {
-            return response.json();
-        })
-        .then((res) => {
-            if (res.token) {
-                localStorage.setItem('token', res.token)
-                props.loginHandler()
-                props.tokenCheck()
-                return res;
-            } else {
-                return;
-            }
-        })
-        .catch((err) => console.log(err));
+        props.loginHandler(password, email)
 
     }
 

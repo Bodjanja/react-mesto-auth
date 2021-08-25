@@ -39,19 +39,18 @@ function App() {
   // ---------------------------------------------------
 
   React.useEffect(() => {
-    api
-      .getUserData()
+    if(loggedIn){
+    api.getUserData()
       .then((user) => {
         setCurrentUser(user);
       })
       .catch((err) => {
         console.log(err);
       });
-  }, []);
+      }}, [loggedIn]);
 
   React.useEffect(() => {
-    api
-      .getInitialCards()
+    api.getInitialCards()
       .then((card) => {
         setCards(card);
       })
@@ -161,8 +160,19 @@ function App() {
   function handlePageRedirect(){//Изменение состояния переменной при перемещении между страницами приложения
     setSigninPageActive(!signinPageActive)
   }
-  function handleLogin(){
-    setLoggedIn(true)
+  function handleLogin(password, email){
+    auth.login(password, email)
+    .then((res) => {
+        if (res.token) {
+            localStorage.setItem('token', res.token)
+            setLoggedIn(true)
+            tokenCheck()
+            return res;
+        } else {
+            return;
+        }
+    })
+    .catch((err) => console.log(err));
   }
 
   function handleUserData(info){//Сохранение почты для вставки в header при логине
@@ -171,6 +181,7 @@ function App() {
     }
     setUserData(userData)
   }
+
 
   function handleSignOut(){
     localStorage.removeItem('token')
@@ -182,39 +193,36 @@ function App() {
     if(localStorage.getItem('token')){
       let token = localStorage.getItem('token')
       auth.checkToken(token)
-      .then((response) => {
-        if(response.ok){
-        handleLogin()
-        history.push('/')
-        }
-        return response.json();
-      })
       .then((res) => {
-        handleUserData(res)
+        if(res){
+          setLoggedIn(true)
+          history.push('/')
+          handleUserData(res)
+          }
         return res;
       })
       .catch((err) => console.log(err));
       }
   }
 
-  const onRegister = (password, email) =>{//Запрос к бэкэнду для регистрации нового пользователя
+  const onRegister = (password, email) => {//Запрос к бэкэнду для регистрации нового пользователя
         auth.register(password, email)
-        .then((response) => {
-            if(response.ok){
+        .then((res) => {
+          if(!res.message){
             history.goBack()
             handlePageRedirect()
             setIsRegistred(true)//Стейт для попапа успешной/неуспешной регистрации
-            }else{setIsRegistred(false)}
-          return response.json();
-      })
-        .then((res) => {
             handleRegistrationClick()
+            }else{
+            setIsRegistred(false)
+            handleRegistrationClick()
+            }
             return res;
         })
         .catch((err) => {
-          handleRegistrationClick()
         console.log(err)});
       }
+
 // -------------------------------------------------------------------------------
   
   React.useEffect(() => {
@@ -289,7 +297,7 @@ function App() {
             onUpdateAvatar={handleUpdateAvatar}
           />
 
-          <InfoTooltip isRegistred={isRegistred} isOpen={isRegistrationPopupOpen} onClose={closeAllPopups}/>
+          <InfoTooltip isRegistred={isRegistred} registerSuccess={'Вы успешно зарегистрировались!'} registerFail={'Что-то пошло не так! Попробуйте ещё раз'} isOpen={isRegistrationPopupOpen} onClose={closeAllPopups}/>
 
           <PopupWithForm
             name="confirmation"

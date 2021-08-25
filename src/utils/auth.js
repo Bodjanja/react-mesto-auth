@@ -11,6 +11,9 @@ export const register = (password, email) => {
             email
         })
     })
+    .then((response) => {
+        return response.json();
+      })
 }
 
 export const login = (password, email) => {
@@ -24,6 +27,9 @@ export const login = (password, email) => {
                 email
             })
         })
+        .then((response) => {
+            return response.json();
+        })
 }
 
 export const checkToken = (token) => {
@@ -34,4 +40,7 @@ export const checkToken = (token) => {
                 "Authorization": `Bearer ${token}`
             },
         })
+        .then((response) => {
+            return response.json();
+          })
 }
